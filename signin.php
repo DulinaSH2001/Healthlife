@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Query to find the user
+    // Query to find the user in the users table
     $sql = "SELECT * FROM users WHERE username='$username' OR email='$username'";
     $result = $connect->query($sql);
 
@@ -15,26 +15,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $row = $result->fetch_assoc();
 
         if (password_verify($password, $row['password'])) {
-
+            // Set session variables for regular user
             $_SESSION['username'] = $row['username'];
             $_SESSION['email'] = $row['email'];
             $_SESSION['firstname'] = $row['firstname'];
+            $_SESSION['uid'] = $row['id'];
 
             echo "<script>console.log('Login successful!');</script>";
 
-            header("Location: home.php");
+            header("Location: client/home.php");
             exit();
         } else {
             echo "<script>alert('Invalid password!');</script>";
         }
     } else {
-        echo "<script>alert('No user found with this username or email!');</script>";
+
+        $adminSql = "SELECT * FROM admin WHERE username='$username' OR email='$username'";
+        $adminResult = $connect->query($adminSql);
+
+        if ($adminResult->num_rows > 0) {
+            $adminRow = $adminResult->fetch_assoc();
+
+            if (password_verify($password, $adminRow['password'])) {
+
+                $_SESSION['admin_username'] = $adminRow['username'];
+                $_SESSION['admin_email'] = $adminRow['email'];
+                $_SESSION['admin_id'] = $adminRow['id'];
+
+                echo "<script>console.log('Admin login successful!');</script>";
+
+                header("Location: admin/dashboard.php");
+                exit();
+            } else {
+                echo "<script>alert('Invalid password for admin!');</script>";
+            }
+        } else {
+            echo "<script>alert('No user found with this username or email!');</script>";
+        }
     }
 }
 
 $connect->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
