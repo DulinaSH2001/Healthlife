@@ -18,10 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $_SESSION['username'] = $row['username'];
             $_SESSION['email'] = $row['email'];
+            $_SESSION['firstname'] = $row['firstname'];
 
             echo "<script>console.log('Login successful!');</script>";
 
-            header("Location: Home.php");
+            header("Location: home.php");
             exit();
         } else {
             echo "<script>alert('Invalid password!');</script>";
