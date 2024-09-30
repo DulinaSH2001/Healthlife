@@ -1,12 +1,6 @@
 <?php
-session_start();
 
-if (!isset($_SESSION['admin_username'])) {
-    header("Location: ../signin.php");
-    exit();
-}
 
-// Connect to the database
 include 'connect.php';
 ?>
 
@@ -17,12 +11,10 @@ include 'connect.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
     <style>
-        /* Styles for the user management table */
         .main {
             margin-left: 270px;
-            /* Adjust this based on your sidebar width */
+
             padding: 20px;
         }
 
@@ -69,7 +61,7 @@ include 'connect.php';
             </thead>
             <tbody>
                 <?php
-                // Fetch user data
+
                 $sql = "SELECT * FROM users";
                 $result = $connect->query($sql);
                 $users = $result->fetch_all(MYSQLI_ASSOC);
