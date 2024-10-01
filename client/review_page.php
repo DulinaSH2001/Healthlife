@@ -65,17 +65,32 @@
         button:hover {
             opacity: 0.8;
         }
+
+        .message {
+            color: green;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
+    <?php include 'components/header.php'; ?>
     <div class="container">
         <h2>Submit Your Review</h2>
 
-        <form action="review_page.php" method="POST">
+
+
+
+
+        <form action="review_page.php" method="POST"> <!-- Self-submitting form -->
             <h3>Rating:</h3>
             <div class="stars">
-                <input type="radio" name="rating" id="star5" value="5">
+                <input type="radio" name="rating" id="star5" value="5" required>
                 <label for="star5">&#9733;</label>
                 <input type="radio" name="rating" id="star4" value="4">
                 <label for="star4">&#9733;</label>
@@ -95,23 +110,32 @@
 
 </html>
 
+
 <?php
 include 'connect.php';
 
-session_start();
-$user_id = $_SESSION['uid'];
-$review = $_POST['review'];
-$rating = intval($_POST['rating']);
-$status = 'pending';
 
-// Insert review and rating into database
-$sql = "INSERT INTO reviews (user_id, review, rating, status) VALUES ('$user_id', '$review', '$rating', '$status')";
-$connect->query($sql);
 
-if ($connect->affected_rows > 0) {
-    echo "Your review has been submitted and is awaiting approval.";
-} else {
-    echo "There was an error submitting your review.";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $user_id = $_SESSION['uid'];
+
+    // Retrieve the review and rating from the POST request
+    $review = isset($_POST['review']) ? $connect->real_escape_string($_POST['review']) : '';
+    $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
+    $status = 'pending'; // Set the review status to pending
+
+    if ($rating >= 1 && $rating <= 5) {
+
+        $sql = "INSERT INTO reviews (user_id, review, rating, status) VALUES ('$user_id', '$review', '$rating', '$status')";
+        if ($connect->query($sql) === TRUE) {
+            $message = "Your review has been submitted and is awaiting approval.";
+        } else {
+            $message = "There was an error submitting your review: " . $connect->error;
+        }
+    } else {
+        $message = "Please select a valid star rating.";
+    }
 }
 
 $connect->close();
